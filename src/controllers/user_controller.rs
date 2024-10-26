@@ -1,4 +1,4 @@
-use crate::{middlewares::errors::CustomError, services::user_service::UserService};
+use crate::{errors_handler::errors::CustomError, services::user_service::UserService};
 use actix_web::{web, HttpResponse, Responder};
 use serde::Deserialize;
 use validator::Validate;
@@ -9,6 +9,8 @@ pub struct UserSchema {
     pub name: String,
     #[validate(email(message = "shall be a valid email"))]
     pub email: String,
+    #[validate(length(min = 6, message = "name shall be min 3 characters"))]
+    pub password: String
 }
 
 pub async fn get_all_users(service: web::Data<UserService>) -> Result<impl Responder, CustomError> {

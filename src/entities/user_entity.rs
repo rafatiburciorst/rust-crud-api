@@ -1,10 +1,20 @@
 use serde::{Deserialize, Serialize};
-use validator::Validate;
+use chrono::{DateTime, Utc};
 use sqlx::FromRow;
 
-#[derive(Debug, Serialize, Deserialize, FromRow, Validate)]
+#[derive(Debug, Serialize, Deserialize, FromRow)]
 pub struct User {
   pub id: i32,
   pub name: String,
-  pub email: String
+  pub email: String,
+  pub created_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, FromRow)]
+pub struct DbUser {
+  pub id: i32,
+  pub name: String,
+  pub email: String,
+  pub created_at: Option<DateTime<Utc>>,
+  pub password: String,
 }

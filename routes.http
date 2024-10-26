@@ -1,5 +1,16 @@
 @url = http://localhost:8080
 
-
+###
+@name = get_users
 GET {{url}}/users
 Content-Type: application/json
+
+###
+@name = create_user
+POST {{url}}/users
+Content-Type: application/json
+
+{
+    "name": "John Doe",
+    "email": "john.doe@example.com"
+}
