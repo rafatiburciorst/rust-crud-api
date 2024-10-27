@@ -30,13 +30,15 @@ async fn main() -> std::io::Result<()> {
         }
     };
 
-
     let user_reposity = repository::user_repository::UserRepository::new(pool.clone());
     let user_service = services::user_service::UserService::new(user_reposity);
+    let post_repository = repository::post_repository::PostRepository::new(pool.clone());
+    let post_service = services::post_service::PostService::new(post_repository);
 
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(user_service.clone()))
+            .app_data(web::Data::new(post_service.clone()))
             .configure(routes_config)
     })
     .bind(("localhost", 8080))?

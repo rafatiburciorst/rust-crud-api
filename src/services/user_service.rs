@@ -4,6 +4,7 @@ use crate::{
 };
 use anyhow::Result;
 use std::sync::Arc;
+use bcrypt::{hash, DEFAULT_COST};
 
 #[derive(Clone)]
 pub struct UserService {
@@ -24,18 +25,33 @@ impl UserService {
             .map_err(|_| CustomError::InternalServerError)
     }
 
-    pub async fn create(&self, form: UserSchema) -> Result<(), CustomError> {
+    pub async fn create(&self, mut form: UserSchema) -> Result<(), CustomError> {
         match self.find_by_email(form.email.clone()).await {
             Ok(_) => Err(CustomError::UserAlreadyExists),
             Err(_) => {
+                let hash_password = self.hash_password(form.password);
+                match hash_password {
+                    Ok(hash_password) => {
+                        form.password = hash_password;
+                    }
+                    Err(_) => {
+                        return Err(CustomError::InternalServerError);
+                    }
+                }
+                
                 self.repository.create_user(form).await?;
                 Ok(())
             }
         }
     }
 
-    pub async fn find_by_email(&self, email: String) -> Result<User, CustomError> {
+    async fn find_by_email(&self, email: String) -> Result<User, CustomError> {
         let user = self.repository.find_by_email(email).await?;
         Ok(user)
+    }
+
+    fn hash_password(&self, password: String) -> Result<String, bcrypt::BcryptError> {
+        let hash_password = hash(password, DEFAULT_COST)?;
+        Ok(hash_password)
     }
 }
