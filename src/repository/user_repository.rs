@@ -1,5 +1,6 @@
-use crate::entities::user_entity::{User, DbUser};
 use crate::controllers::user_controller::UserSchema;
+use crate::entities::user_entity::User;
+use crate::errors_handler::errors::CustomError;
 use anyhow::Result;
 use sqlx::PgPool;
 
@@ -20,13 +21,23 @@ impl UserRepository {
         Ok(users)
     }
 
-    pub async fn create_user(&self, form: UserSchema) -> Result<DbUser> {
-        let user = sqlx::query_as!(
-            DbUser,
-            "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email, created_at, password",
+    pub async fn create_user(&self, form: UserSchema) -> Result<(), CustomError> {
+        sqlx::query!(
+            "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
             form.name,
             form.email,
             form.password
+        )
+        .execute(&self.pool)
+        .await?;
+        Ok(())
+    }
+
+    pub async fn find_by_email(&self, email: String) -> Result<User, CustomError> {
+        let user = sqlx::query_as!(
+            User,
+            "SELECT id, name, email, created_at FROM users WHERE email = $1",
+            email
         )
         .fetch_one(&self.pool)
         .await?;

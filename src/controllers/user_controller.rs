@@ -10,7 +10,13 @@ pub struct UserSchema {
     #[validate(email(message = "shall be a valid email"))]
     pub email: String,
     #[validate(length(min = 6, message = "name shall be min 3 characters"))]
-    pub password: String
+    pub password: String,
+}
+
+#[derive(Deserialize, Validate)]
+pub struct EmailSchema {
+    #[validate(email(message = "shall be a valid email"))]
+    pub email: String
 }
 
 pub async fn get_all_users(service: web::Data<UserService>) -> Result<impl Responder, CustomError> {
@@ -22,6 +28,8 @@ pub async fn create(
     form: web::Json<UserSchema>,
     service: web::Data<UserService>,
 ) -> Result<impl Responder, CustomError> {
-    let user = service.create(form.into_inner()).await?;
-    Ok(HttpResponse::Created().json(user))
+    service
+        .create(form.into_inner())
+        .await?;
+    Ok(HttpResponse::Created())
 }

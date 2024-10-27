@@ -1,8 +1,6 @@
 use crate::{
-    controllers::user_controller::UserSchema,
-    entities::user_entity::{DbUser, User},
-    errors_handler::errors::CustomError,
-    repository::user_repository::UserRepository,
+    controllers::user_controller::UserSchema, entities::user_entity::User,
+    errors_handler::errors::CustomError, repository::user_repository::UserRepository,
 };
 use anyhow::Result;
 use std::sync::Arc;
@@ -26,10 +24,18 @@ impl UserService {
             .map_err(|_| CustomError::InternalServerError)
     }
 
-    pub async fn create(&self, form: UserSchema) -> Result<DbUser, CustomError> {
-        self.repository
-            .create_user(form)
-            .await
-            .map_err(|_| CustomError::InternalServerError)
+    pub async fn create(&self, form: UserSchema) -> Result<(), CustomError> {
+        match self.find_by_email(form.email.clone()).await {
+            Ok(_) => Err(CustomError::UserAlreadyExists),
+            Err(_) => {
+                self.repository.create_user(form).await?;
+                Ok(())
+            }
+        }
+    }
+
+    pub async fn find_by_email(&self, email: String) -> Result<User, CustomError> {
+        let user = self.repository.find_by_email(email).await?;
+        Ok(user)
     }
 }

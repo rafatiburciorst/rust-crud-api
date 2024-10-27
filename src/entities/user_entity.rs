@@ -9,12 +9,3 @@ pub struct User {
   pub email: String,
   pub created_at: Option<DateTime<Utc>>,
 }
-
-#[derive(Debug, Serialize, Deserialize, FromRow)]
-pub struct DbUser {
-  pub id: i32,
-  pub name: String,
-  pub email: String,
-  pub created_at: Option<DateTime<Utc>>,
-  pub password: String,
-}
