@@ -4,7 +4,7 @@ use crate::errors_handler::errors::CustomError;
 use anyhow::Result;
 use sqlx::PgPool;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct UserRepository {
     pool: PgPool,
 }
@@ -36,7 +36,7 @@ impl UserRepository {
     pub async fn find_by_email(&self, email: String) -> Result<User, CustomError> {
         let user = sqlx::query_as!(
             User,
-            "SELECT id, name, email, created_at FROM users WHERE email = $1",
+            "SELECT id, name, email, password, created_at FROM users WHERE email = $1",
             email
         )
         .fetch_one(&self.pool)

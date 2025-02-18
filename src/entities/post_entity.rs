@@ -9,5 +9,6 @@ pub struct Post {
   pub title: String,
   pub text: String,
   pub author_id: i32,
+  pub password: String,
   pub created_at: Option<DateTime<Utc>>,
 }

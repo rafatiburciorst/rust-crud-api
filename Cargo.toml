@@ -16,3 +16,4 @@ thiserror = "1.0"
 validator = { version = "0.16", features = ["derive"] }
 chrono = { version = "0.4", features = ["serde"] }
 bcrypt = "0.15.1"
+jsonwebtoken = "9.3.0"

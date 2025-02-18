@@ -4,9 +4,9 @@ use crate::{
 };
 use anyhow::Result;
 use std::sync::Arc;
-use bcrypt::{hash, DEFAULT_COST};
+use bcrypt::{hash, DEFAULT_COST, verify};
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct UserService {
     repository: Arc<UserRepository>,
 }
@@ -50,8 +50,13 @@ impl UserService {
         Ok(user)
     }
 
-    fn hash_password(&self, password: String) -> Result<String, bcrypt::BcryptError> {
+    pub fn hash_password(&self, password: String) -> Result<String, bcrypt::BcryptError> {
         let hash_password = hash(password, DEFAULT_COST)?;
         Ok(hash_password)
+    }
+
+    pub fn verify_password(&self, password: String, hash: &str) -> Result<bool, bcrypt::BcryptError> {
+        let raw_password = verify(password, hash)?;
+        Ok(raw_password)
     }
 }
